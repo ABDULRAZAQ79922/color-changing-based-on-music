@@ -2,18 +2,11 @@ body {
     margin: 0;
     overflow: hidden;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
+    height: 100vh;
     background-color: #000;
 }
 canvas {
     display: block;
-}
-.controls {
-    margin: 10px;
-}
-button {
-    margin: 0 5px;
-    padding: 10px;
-    font-size: 16px;
 }

@@ -42,6 +42,8 @@ function myDraw() {
 }
 
 myAudio.addEventListener('play', () => {
-    myAudioCtx.resume();
+    if (myAudioCtx.state === 'suspended') {
+        myAudioCtx.resume();
+    }
     myDraw();
 });

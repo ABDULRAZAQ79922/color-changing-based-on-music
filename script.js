@@ -1,27 +1,42 @@
 const myCanvas = document.getElementById('myCanvas');
 const myAudio = document.getElementById('myAudio');
+const myPlayButton = document.getElementById('playButton');
+const myStopButton = document.getElementById('stopButton');
+const myForwardButton = document.getElementById('forwardButton');
 const myCtx = myCanvas.getContext('2d');
+
 
 myCanvas.width = window.innerWidth;
 myCanvas.height = window.innerHeight;
 
-const myAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const myAudioSource = myAudioCtx.createMediaElementSource(myAudio);
-const myAnalyser = myAudioCtx.createAnalyser();
+let myAudioCtx;
+let myAudioSource;
+let myAnalyser;
+let myBufferLength;
+let myDataArray;
 
-myAudioSource.connect(myAnalyser);
-myAnalyser.connect(myAudioCtx.destination);
 
-myAnalyser.fftSize = 256;
-const myBufferLength = myAnalyser.frequencyBinCount;
-const myDataArray = new Uint8Array(myBufferLength);
+function initializeAudio() {
+    myAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    myAudioSource = myAudioCtx.createMediaElementSource(myAudio);
+    myAnalyser = myAudioCtx.createAnalyser();
+    myAudioSource.connect(myAnalyser);
+    myAnalyser.connect(myAudioCtx.destination);
+    myAnalyser.fftSize = 256;
+    myBufferLength = myAnalyser.frequencyBinCount;
+    myDataArray = new Uint8Array(myBufferLength);
+}
+
 
 function myFrequencyToColor(value) {
     const hue = (value / 255) * 360;
     return `hsl(${hue}, 100%, 50%)`;
 }
 
+
 function myDraw() {
+    if (myAudio.paused) return;
+
     requestAnimationFrame(myDraw);
 
     myAnalyser.getByteFrequencyData(myDataArray);
@@ -41,9 +56,29 @@ function myDraw() {
     }
 }
 
-myAudio.addEventListener('play', () => {
+
+myPlayButton.addEventListener('click', () => {
+    if (!myAudioCtx) {
+        initializeAudio();
+    }
     if (myAudioCtx.state === 'suspended') {
         myAudioCtx.resume();
     }
+    myAudio.play();
     myDraw();
+});
+
+myStopButton.addEventListener('click', () => {
+    myAudio.pause();
+    myAudio.currentTime = 0;
+});
+
+myForwardButton.addEventListener('click', () => {
+    myAudio.currentTime += 10;
+});
+
+
+window.addEventListener('resize', () => {
+    myCanvas.width = window.innerWidth;
+    myCanvas.height = window.innerHeight;
 });
